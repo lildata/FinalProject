@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+
+    <!--The charset attribute can be used as a shorthand method to define an HTML document’s character set, which
+    is always a good thing to do. -->
+    <meta charset="utf-8">
+
+
+    <!--The http-equiv attribute can be used instead of the name attribute and will make an HTTP header, which is
+    information sent to the server where the web page is held. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+
+  <!--A <meta> viewport element gives the browser instructions on how to control the page's dimensions and scaling.
+  The width=device-width part sets the width of the page to follow the screen-width of the device (which will 
+  vary depending on the device). -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Craig's Marketplace</title>
+
+    <!-- Bootstrap -->
+    <!--<link href="css/bootstrap.min.css" rel="stylesheet">-->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-sm-8 col-sm-push-2">
+          <h1 class="text-center">Craig's Marketplace</h1>
+          <hr/>
+          <br/>
+        </div>
+      </div>
+    </div>
+    
+    <!--<div class="row">-->
+      <div class="column-left">
+
+        <h1> Originator Functions </h1>
+
+        Add Admin: <input type="address" id="newAdminAddressValue" maxlength="42">
+        <input type="button" id="newAdminAddressSubmit" value="Submit">
+        <br>
+        <br>
+        <button id="viewAdminArray" type="button">Check Admin Array</button>
+        <br>
+        <br>
+        Check Admin Mapping: <input type="address" id="viewAdminMappingValue" maxlength="42">
+        <button id="viewAdminMappingSubmit" type="button">Submit</button>
+        <br>
+        <br> 
+        Remove Admin: <input type="address" id="removeAdminValue" maxlength="42">
+        <button id="removeAdminSubmit" type="button">Submit</button>
+        <br>
+        <br> 
+        <br>
+        <br> 
+
+        <h1> Admin Functions</h1>
+
+        Add Owner: <input type="address" id="newOwnerAddressValue" maxlength="42">
+        <input type="button" id="newOwnerAddressSubmit" value="Submit">
+        <br>
+        <br>
+        <button id="viewOwnerArray" type="button">Check Owner Array</button>
+        <br>
+        <br>
+        Check Owner Mapping: <input type="address" id="viewOwnerMappingValue" maxlength="42">
+        <button id="viewOwnerMappingSubmit" type="button">Submit</button>
+        <br>
+        <br>
+        Remove Owner: <input type="address" id="removeOwnerValue" maxlength="42">
+        <button id="removeOwnerSubmit" type="button">Submit</button>
+        <br>
+        <br> 
+        <br>
+        <br> 
+        
+        <h1> Owner Functions </h1>
+
+        New Store Name: <input type="string" id="newStoreNameValue" maxlength="42">
+        <br>
+        New Store Description: <input type="string" id="newStoreDescriptionValue" maxlength="42">
+        <button id="addStoreSubmit" type="button">Submit</button>
+        <br>
+        <br> 
+        <button id="viewOwnerArrayLength" type="button">Check Store Array Length</button>
+        <br>
+        <br> 
+        Remove Store Index: <input type="number" id="removeStoreIndexValue" maxlength="42">
+        <br>
+        <button id="removeStoreSubmit" type="button">Submit</button>
+        <br>
+        <br> 
+        <br>
+        <br>
+        New Product Store Number: <input type="number" id="newProductStoreValue" maxlength="42">
+        <br>
+        New Product SKU: <input type="number" id="newProductSkuValue" maxlength="42">
+        <br>
+        New Product Description: <input type="string" id="newProductDescriptionValue" maxlength="42">
+        <br>
+        New Product Price: <input type="number" id="newProductPriceValue" maxlength="42">
+        <br>
+        New Product Quantity: <input type="number" id="newProductQuantityValue" maxlength="42">
+        <br>
+        <button id="addProductSubmit" type="button">Submit</button>
+        <br>
+        <br>
+        View Product Store Number: <input type="number" id="viewProductStoreValue" maxlength="42">
+        <br>
+        View Product SKU: <input type="number" id="viewProductSkuValue" maxlength="42">
+        <br>
+        <button id="viewProductSubmit" type="button">Submit</button>
+        <br>
+        <br>
+        Change Product Store Number: <input type="number" id="changeProductPriceStoreValue" maxlength="42">
+        <br>
+        Change Product SKU: <input type="number" id="changeProductPriceSkuValue" maxlength="42">
+        <br>
+        Change Product Price: <input type="number" id="changeProductPriceValue" maxlength="42">
+        <br>
+        <button id="changeProductPriceSubmit" type="button">Submit</button>
+        <br>
+        <br>
+        <h1> Shopper Functions </h1>
+
+        Buy Product Owner Address: <input type="address" id="buyProductOwnerAddressValue" maxlength="42">
+        <br>
+        Buy Product Store Number: <input type="number" id="buyProductStoreNumberValue" maxlength="42">
+        <br>
+        Buy Product SKU: <input type="number" id="buyProductSkuValue" maxlength="42">
+        <br>
+        Buy Product Qty: <input type="number" id="buyProductQtyValue" maxlength="42">
+        <br>
+        Buy Product Price: <input type="number" id="buyProductPriceValue" maxlength="42">
+        <br>
+        <button id="buyProductSubmit" type="button">Submit</button>
+        <br>
+        <br>
+        <button id="viewContractBalance" type="button">Check Contract Balance</button>
+        <br>
+        <br>
+        <button id="viewOwnerAddressBalance" type="button">Check Owner Address Balance</button>
+        <br>
+        <br>
+        <button id="viewOwnerContractBalance" type="button">Check Owner Contract Balance</button>
+        <br>
+        <br>
+        <button id="withdrawBalance" type="button">Withdraw Contract Balance</button>
+        <br>
+        <br>
+        <button id="subscribeEvent" type="button">Subscribe Event</button>
+        <br>
+        <button id="storeButtons" type="button">Store Buttons</button>
+
+      </div>
+      <div class="column-center" id='column-center'>
+        <h1> Data Column </h1>
+        <div class = "data-column" id='data-column'></div>
+      </div>
+      <div class="column-right">
+        <h1> Stores Column </h1>
+        <div class = "stores-column" id="stores-column"></div>
+      </div>
+    </div>
+      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+      <!-- Include all compiled plugins (below), or include individual files as needed -->
+      <!-- <script src="js/bootstrap.min.js"></script>-->
+      <script src="js/web3.min.js"></script>
+      <!--<script src="js/truffle-contract.js"></script>-->
+      <script src="js/app.js"></script>
+    </body>
+</html>
