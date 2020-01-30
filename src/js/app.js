@@ -257,7 +257,7 @@ App = {   // could be called anything. in a browser environment, window obejct. 
 
     var inputStoreIndex = document.getElementById("viewProductStoreValue").value;
     var inputProductSku = document.getElementById("viewProductSkuValue").value;
-    result = App.contracts.Marketplace.methods.viewProduct(inputStoreIndex,inputProductSku).call({from: account[0]});
+    result = await App.contracts.Marketplace.methods.viewProduct(inputStoreIndex,inputProductSku).call({from: account[0]});
     console.log(result);
   },
 

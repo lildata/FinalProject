@@ -1,5 +1,7 @@
 pragma solidity >=0.4.21 <0.7.0;
 
+import './LibraryDemo.sol';
+
 contract Marketplace
 {
     // a Product is a type that includes the price, desccription, and quantity
@@ -32,7 +34,21 @@ contract Marketplace
 
     // Address that originally deployed the contract and created the marketplace
     // Only address able to add and remove admins
-    address originatorAddress;
+    address private originatorAddress;
+    bool private stopped = false;
+
+    modifier stopInEmergency()
+    {
+        if (!stopped)
+        _;
+    }
+
+    function toggleContractActive()
+    public
+    isOriginator
+    {
+        stopped = !stopped;
+    }
 
     // If there weren't an array of admin addresses, it wouldn't be possible to determine
     // how many or who the admins were.
@@ -72,7 +88,7 @@ contract Marketplace
 
     event storeCreated(address owner, string name, string description);
     event adminAdded(address newAdmin);
-
+    event productBought(address storeOwner, uint store, uint sku, uint qty);
     // 1st mapping connects owner address with a mapping of unique IDs and corresponding
     // storefront mappings
     // 2nd mapping connects the unique ID of a storefront with a mapping of SKUs and
@@ -85,9 +101,18 @@ contract Marketplace
         originatorAddress = msg.sender;
     }
 
+    function getSum(uint num1, uint num2)
+    public
+    pure
+    returns (uint)
+    {
+        return LibraryDemo.addTwoNumbers(num1, num2);
+    }
+
     function getOwnerArrayMapping(address _ownerAddress)
     public
     view
+    isAdmin
     returns (bool ownerOrNot, uint arrayIndex)
     {
         ownerOrNot = ownerMapping[_ownerAddress].ownerOrNot;
@@ -97,6 +122,7 @@ contract Marketplace
     function getOwnerArray()
     public
     view
+    isAdmin
     returns (address[] memory)
     {
         return ownerArray;
@@ -105,6 +131,7 @@ contract Marketplace
     function getAdminArrayMapping(address _adminAddress)
     public
     view
+    isOriginator
     returns (bool adminOrNot, uint arrayIndex)
     {
         adminOrNot = adminMapping[_adminAddress].adminOrNot;
@@ -114,6 +141,7 @@ contract Marketplace
     function getAdminArray()
     public
     view
+    isOriginator
     returns (address[] memory)
     {
         return adminArray;
@@ -121,8 +149,8 @@ contract Marketplace
 
     // function to add an address as true to the owners (store) mapping
     function addOwner (address _newOwnerAddress)
-        public
-        //isAdmin
+    public
+    isAdmin
     {
         // Adding current length of 'ownerArray' array to 'ownerMapping' mapping (OwnerInfo struct)
         // I can use the length because that is what the index will be once added to the
@@ -137,8 +165,8 @@ contract Marketplace
     }
 
     function removeOwner (address _currentOwnerAddress)
-        public
-        //isAdmin
+    public
+    isAdmin
     {
         ownerMapping[_currentOwnerAddress].ownerOrNot = false;
 
@@ -148,8 +176,8 @@ contract Marketplace
     }
 
     function addAdmin (address _newAdminAddress)
-        public
-        //isOriginator
+    public
+    isOriginator
     {
         // Adding current length of 'owner' array to 'owners' mapping (OwnerInfo struct)
         // I can use the length because that is what the index will be once added to the
@@ -168,7 +196,7 @@ contract Marketplace
 
     function removeAdmin (address _currentAdminAddress)
         public
-        //isOriginator
+        isOriginator
     {
         adminMapping[_currentAdminAddress].adminOrNot = false;
 
@@ -179,8 +207,8 @@ contract Marketplace
 
 
     function addStore (string memory _name, string memory _description)
-        public
-        //isOwner
+    public
+    isOwner
     {
         Store memory tempStore;
 
@@ -194,7 +222,7 @@ contract Marketplace
 
     function removeStore (uint removeStoreIndex)
     public
-    //isOwner
+    isOwner
     {
 
         if ((removeStoreIndex == 0) && (ownersToStores[msg.sender].length == 1))
@@ -213,13 +241,15 @@ contract Marketplace
     function getStoreArrayLength()
     public
     view
+    isAdmin
     returns (uint)
     {
         return ownersToStores[msg.sender].length;
     }
 
     function addProduct (uint _storeIndex, uint _sku, string memory _description, uint _price,uint _qty)
-        public
+    public
+    isOwner
     {
         //ownersToStores[msg.sender] is equal to array of Storefronts
         // user provides _storeIndex to determine which store to add product
@@ -231,9 +261,10 @@ contract Marketplace
     }
 
     function viewProduct (uint _storeIndex, uint _sku)
-        public
-        view
-        returns (string memory, uint, uint)
+    public
+    view
+    isOwner
+    returns (string memory, uint, uint)
     {
         //ownersToStores[msg.sender] is equal to array of Storefronts
         // user provides _storeIndex to determine which store to add product
@@ -248,6 +279,7 @@ contract Marketplace
 
     function removeProduct (uint _storeIndex, uint _sku)
     public
+    isOwner
     {
         //ownersToStores[msg.sender] is equal to array of Storefronts
         // user provides _storeIndex to determine which store to add product
@@ -260,6 +292,7 @@ contract Marketplace
 
     function changeProductPrice (uint _storeIndex, uint _sku, uint _newPrice)
     public
+    isOwner
     {
         //ownersToStores[msg.sender] is equal to array of Storefronts
         // user provides _storeIndex to determine which store to add product
@@ -276,15 +309,18 @@ contract Marketplace
         // user provides _storeIndex to determine which store to add product
         // user provides _sku for key value of mapping and Product struct is the value
 
-        require (msg.value >= ownersToStores[_storeOwner][_storeIndex].skuToProducts[_sku].price, 'not enough ether');
+        //require (msg.value >= ownersToStores[_storeOwner][_storeIndex].skuToProducts[_sku].price, 'not enough ether');
 
-        ownersToStores[msg.sender][_storeIndex].skuToProducts[_sku].qty -= _qty;
+        ownersToStores[_storeOwner][_storeIndex].skuToProducts[_sku].qty -= _qty;
         ownerMapping[_storeOwner].balance += msg.value;
+
+        emit productBought (_storeOwner, _storeIndex, _sku, _qty);
     }
 
     function viewOwnerContractBalance()
-        public
-        view
+    public
+    view
+    isOwner
         returns (uint)
     {
         //ownersToStores[msg.sender] is equal to array of Storefronts
@@ -297,8 +333,10 @@ contract Marketplace
     }
 
     function withdrawContractBalance()
-        public
-        payable
+    public
+    payable
+    isOwner
+    stopInEmergency
     {
         //ownersToStores[msg.sender] is equal to array of Storefronts
         // user provides _storeIndex to determine which store to add product

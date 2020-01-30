@@ -3,7 +3,9 @@
         "dev": "lite-server"
     },
     "dependencies": {
-        "web3": "^1.2.4"
+        "web3": "^1.2.4",
+        "lite-server": "^2.5.4"
+
     },
     "devDependencies": {
         "lite-server": "^2.5.4"
