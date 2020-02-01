@@ -17,14 +17,23 @@ In order to run this application, you will need several additional programs. I h
  
 Visual Studio Code
 Truffle
-Lite-Server
+Lite-Server (As it's listed in dependencies in the package.JSON file, it shoud install automatically when you use 'npm install' later on)
 Metamask
+NPM
+Ganache
 
+Once, you have downloaded the project files from https://github.com/cjd9s/FinalProject, open a terminal and ensure that you are in the project folder. Before I can use the Truffle scripts, I always have to enter the following 'Set-ExecutionPolicy Bypass -Scope Process' to allow me to run the scripts. I don't know if this is necessary for you.
 
-The recommended installation method is a local NPM install for your project:
-$ npm install lite-server --save-dev
+Type 'npm install' to install all of the dependencies listed in package.JSON.
 
+Now, you should have everything that you need in place. So, start Ganache to create the private, local blockchain. Ensure that the port is set to 7545.
 
-$ truffle compile
-$ truffle migrate
-$ npm run dev
+Next, open Chrome/Firefox and sign in to Metamask. You will need to connect to 127.0.0.1 port 7545.
+
+Now type 'truffle compile' at the command line to compile the contracts. 
+
+Then type 'truffle migrate' to migrate the contracts to the Ganache blockchain.
+
+Now type 'truffle test' to run the tests.
+
+Finally, type 'npm run dev' to start the application. This should automatically open a browser window with the appliation.

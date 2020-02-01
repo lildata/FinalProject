@@ -30,11 +30,13 @@ h1 {
 
 h2 {
     color: white;
-    background-color: #090;
+    background-color: rgb(243, 66, 66);
     font-size: 1.5em;
-    margin: 0;
+    margin: auto;
     padding: 2px;
     padding-left: 14px;
+    text-align: center;
+    justify-content: center 
 }
 
 h3 {
@@ -58,7 +60,7 @@ strong {
 }
 
 li {
-    color: #900;
+    color:black;
     font-style: italic;
 }
 

@@ -1,14 +1,23 @@
-App = {   // could be called anything. in a browser environment, window obejct. Everything the web app can access
+// For me//https://www.w3schools.com/jsref/met_loc_reload.asp
+//https://metamask.github.io/metamask-docs/Main_Concepts/Accessing_Accounts
+
+
+App = {   // could be called anything. in a browser environment, window object. Everything the web app can access
           // will be added to the window environment alongside all the other objects.
   web3Provider: null, // this app object has a property called web3Provider
-  contracts: {}, // this app object has a property called contracts
+  contracts: {}, // this app object has an object property called contracts
+  accounts: [], // this app object has an array property called accounts
+
+  // Product object that acts like a struct. Not really implemented.
 
   Product: function(description, price, quantity){
     this.description = description;
     this.price = price;
     this.quantity = quantity;
   },
-  
+
+  // Store object that acts like a struct. Not really implemented.
+
   Store: function(owner, name, description, product) {
     this.owner = owner;
     this.name = name;
@@ -16,6 +25,7 @@ App = {   // could be called anything. in a browser environment, window obejct. 
     this.product = product;
   },
 
+    // stores array. Not sure if this is implemented.
   stores: [],
 
   initWeb3: async function() { //initWeb3 is the name of the function
@@ -45,18 +55,19 @@ App = {   // could be called anything. in a browser environment, window obejct. 
       //local run Ethereum node or could be Ganache
     }
 
-    const options = {
+    /*const options = {
       transactionConfirmationBlocks: 1
     }
+    
+        web3 = new Web3(App.web3Provider,null,options);
+*/
 
-    web3 = new Web3(App.web3Provider,null,options);
+    web3 = new Web3(App.web3Provider);
 
-    web3.eth.transactionConfirmationBlocks = 1;
+    //web3.eth.transactionConfirmationBlocks = 1;
 
     return App.initContract();
   },
-
-  // make sure metamask connect to ganache blockchain and contract deployed on ganache blockchain
 
   initContract: function() {
 
@@ -64,9 +75,8 @@ App = {   // could be called anything. in a browser environment, window obejct. 
     // Essentially, a promise is a returned object to which you attach callbacks, instead 
     // of passing callbacks into a function.
 
-    $.getJSON('Marketplace.json', function(data) { // anonymous async function returns a promise
+    $.getJSON('Marketplace.json', function(data) {
       // Get the necessary contract artifact file and instantiate it with truffle-contract
-
       // get network Id from the web3 object. asking Metamask. web3 conntected to metamask.
 
       /*.then(response => response.blob())
@@ -81,12 +91,31 @@ App = {   // could be called anything. in a browser environment, window obejct. 
 
       // Set the provider for our contract
       App.contracts.Marketplace.setProvider(App.web3Provider);
-    
       });
     });
+    return App.initApp()
+  },
+
+  initApp: async function(){
+
+    // when the account is changed in Metamask, reload the page to display the correct Ethereum address
+    ethereum.on('accountsChanged', async function (accounts) {
+      location.reload(true);
+    })
+    App.accounts = await web3.eth.getAccounts();
+
+    let ethereumAddress = document.getElementById("ethereumAddress");
+
+    let item = document.createElement('p');
+    
+    item.appendChild(document.createTextNode(App.accounts[0]));
+
+    ethereumAddress.appendChild(item);
 
     return App.bindEvents()
   },
+
+
 
   // The on() method attaches one or more event handlers for the selected elements and child elements.
   // $(selector).on(event,childSelector,data,function,map)
@@ -176,38 +205,24 @@ App = {   // could be called anything. in a browser environment, window obejct. 
 
   viewOwnerContractBalance: async function(event) {
 
-    let account = await web3.eth.getAccounts();
-
-    let result = App.contracts.Marketplace.methods.viewOwnerContractBalance().call({from: account[0]});
+    let result = App.contracts.Marketplace.methods.viewOwnerContractBalance().call({from: App.accounts[0]});
     console.log(result);
     return result;
   },
 
   withdrawContractBalance: async function(event) {
 
-    let account = await web3.eth.getAccounts();
-
-    let tempBalance = await web3.eth.getBalance(App.contracts.Marketplace.options.address);
-    
-    let newBalance = 0;
-
-    let contractAddress = App.contracts.Marketplace.options.address;
-
-    let result = App.contracts.Marketplace.methods.withdrawContractBalance().send({from: account[0]});
+    let result = await App.contracts.Marketplace.methods.withdrawContractBalance().send({from: App.accounts[0]});
     console.log(result);
   },
 
   viewOwnerAddressBalance: async function(event) {
 
-    let account = await web3.eth.getAccounts();
-
-    balance = await web3.eth.getBalance(account[0]);
+    balance = await web3.eth.getBalance(App.accounts[0]);
     console.log(balance);
   },
 
   viewContractBalance: async function(event) {
-
-    let account = await web3.eth.getAccounts();
 
     balance = await web3.eth.getBalance(App.contracts.Marketplace.options.address);
     console.log(balance);
@@ -215,14 +230,13 @@ App = {   // could be called anything. in a browser environment, window obejct. 
 
   buyProduct: async function(event)
   {
-    let account = await web3.eth.getAccounts();
     var buyProductOwnerAddress = document.getElementById("buyProductOwnerAddressValue").value;
     var buyProductStore = document.getElementById("buyProductStoreNumberValue").value;
     var buyProductSku = document.getElementById("buyProductSkuValue").value;
     var buyProductQty = document.getElementById("buyProductQtyValue").value;
     var buyProductPrice = document.getElementById("buyProductPriceValue").value;
     
-    let result = App.contracts.Marketplace.methods.buyProduct(buyProductOwnerAddress, buyProductStore, buyProductSku, buyProductQty).send({from: account[0], value: buyProductPrice});
+    let result = App.contracts.Marketplace.methods.buyProduct(buyProductOwnerAddress, buyProductStore, buyProductSku, buyProductQty).send({from: App.accounts[0], value: buyProductPrice});
 
     console.log(App.contracts.Marketplace.options.address);
     console.log(result);
@@ -233,37 +247,29 @@ App = {   // could be called anything. in a browser environment, window obejct. 
 
   changeProductPrice: async function(event)
   {
-    let account = await web3.eth.getAccounts();
     var changedProductStore = document.getElementById("changeProductPriceStoreValue").value;
     var changedProductSku = document.getElementById("changeProductPriceSkuValue").value;
     var changedProductPrice = document.getElementById("changeProductPriceValue").value;
-    await App.contracts.Marketplace.methods.changeProductPrice(changedProductStore, changedProductSku, changedProductPrice).send({from: account[0]});
-
+    await App.contracts.Marketplace.methods.changeProductPrice(changedProductStore, changedProductSku, changedProductPrice).send({from: App.accounts[0]});
   },
-
-
 
   removeStore: async function(event)
   {
-    let account = await web3.eth.getAccounts();
     var removedStore = document.getElementById("removeStoreIndexValue").value;
     console.log(removedStore);
-    await App.contracts.Marketplace.methods.removeStore(removedStore).send({from: account[0]});
+    await App.contracts.Marketplace.methods.removeStore(removedStore).send({from: App.accounts[0]});
   },
 
-  viewProduct: async function(event) {
-
-    let account = await web3.eth.getAccounts();
-
+  viewProduct: async function(event) 
+  {
     var inputStoreIndex = document.getElementById("viewProductStoreValue").value;
     var inputProductSku = document.getElementById("viewProductSkuValue").value;
-    result = await App.contracts.Marketplace.methods.viewProduct(inputStoreIndex,inputProductSku).call({from: account[0]});
+    result = await App.contracts.Marketplace.methods.viewProduct(inputStoreIndex,inputProductSku).call({from: App.accounts[0]});
     console.log(result);
   },
 
-  addProduct: async function(event) {
-
-    let account = await web3.eth.getAccounts();
+  addProduct: async function(event) 
+  {
 
     var inputStoreIndex = document.getElementById("newProductStoreValue").value;
     var inputProductSku = document.getElementById("newProductSkuValue").value;
@@ -271,42 +277,36 @@ App = {   // could be called anything. in a browser environment, window obejct. 
     var inputProductPrice = document.getElementById("newProductPriceValue").value;
     var inputProductQuantity = document.getElementById("newProductQuantityValue").value;
 
-    result = App.contracts.Marketplace.methods.addProduct(inputStoreIndex,inputProductSku,inputProductDescription,inputProductPrice,inputProductQuantity).send({from: account[0]});
+    result = App.contracts.Marketplace.methods.addProduct(inputStoreIndex,inputProductSku,inputProductDescription,inputProductPrice,inputProductQuantity).send({from: App.accounts[0]});
     console.log(result);
-
-
   },
 
   checkStoreArrayLength: async function(event)
   {
-    let account = await web3.eth.getAccounts();
-    let result = await App.contracts.Marketplace.methods.getStoreArrayLength().call({from: account[0]});
+    let result = await App.contracts.Marketplace.methods.getStoreArrayLength().call({from: App.accounts[0]});
     console.log(result);
   },
 
   removeOwner: async function(event)
   {
-    let account = await web3.eth.getAccounts();
     var removedOwner = document.getElementById("removeOwnerValue").value;
     console.log(removedOwner);
-    await App.contracts.Marketplace.methods.removeOwner(removedOwner).send({from: account[0]});
+    await App.contracts.Marketplace.methods.removeOwner(removedOwner).send({from: App.accounts[0]});
   },
 
   checkOwnerMapping: async function(event)
   {
-    let account = await web3.eth.getAccounts();
     var viewOwnerMapping = document.getElementById("viewOwnerMappingValue").value;
 
     console.log(account);
-    let result = App.contracts.Marketplace.methods.getOwnerArrayMapping(viewOwnerMapping).call({from: account[0]});
+    let result = App.contracts.Marketplace.methods.getOwnerArrayMapping(viewOwnerMapping).call({from: App.accounts[0]});
     console.log(result);
   },
 
   viewOwnerArray: async function(event)
   {
     App.clearCenterColumn();
-    let account = await web3.eth.getAccounts();
-    let result = await App.contracts.Marketplace.methods.getOwnerArray().call({from: account[0]});
+    let result = await App.contracts.Marketplace.methods.getOwnerArray().call({from: App.accounts[0]});
     console.log(result);
     document.getElementById('data-column').appendChild(App.makeOL(result));
 
@@ -314,42 +314,31 @@ App = {   // could be called anything. in a browser environment, window obejct. 
 
   AddOwner: async function(event) {
 
-    let account = await web3.eth.getAccounts();
-
     var inputVal = document.getElementById("newOwnerAddressValue").value;
-
-    let result = App.contracts.Marketplace.methods.addOwner(inputVal).send({from: account[0]}, function(error, transactionHash){
-
-      console.log(transactionHash)
-    });
-    console.log(1);
+    let result = App.contracts.Marketplace.methods.addOwner(inputVal).send({from: App.accounts[0]}, function(error, transactionHash)
+      {
+      });
   },
 
 
   checkAdminMapping: async function(event)
   {
-    let account = await web3.eth.getAccounts();
     var viewAdminMapping = document.getElementById("viewAdminMappingValue").value;
+    let result = await App.contracts.Marketplace.methods.getAdminArrayMapping(viewAdminMapping).call({from: App.accounts[0]});
 
-    console.log(account);
-    let result = await App.contracts.Marketplace.methods.getAdminArrayMapping(viewAdminMapping).call({from: account[0]});
-    console.log(result);
   },
 
   removeAdmin: async function(event)
   {
-    let account = await web3.eth.getAccounts();
     var removedAdmin = document.getElementById("removeAdminValue").value;
     console.log(removedAdmin);
-    await App.contracts.Marketplace.methods.removeAdmin(removedAdmin).send({from: account[0]});
+    await App.contracts.Marketplace.methods.removeAdmin(removedAdmin).send({from: App.accounts[0]});
   },
 
   viewAdminArray: async function(event)
   {
     App.clearCenterColumn();
-    let account = await web3.eth.getAccounts();
-    let result = await App.contracts.Marketplace.methods.getAdminArray().call({from: account[0]});
-    console.log(result);
+    let result = await App.contracts.Marketplace.methods.getAdminArray().call({from: App.accounts[0]});
     document.getElementById('data-column').appendChild(App.makeOL(result));
 
   },
@@ -358,7 +347,7 @@ App = {   // could be called anything. in a browser environment, window obejct. 
   {
     App.clearStoresColumn();
     let account = await web3.eth.getAccounts();
-    let ownerArray = await App.contracts.Marketplace.methods.getOwnerArray().call({from: account[0]});
+    let ownerArray = await App.contracts.Marketplace.methods.getOwnerArray().call({from: App.accounts[0]});
 
   },
 
@@ -446,8 +435,8 @@ App = {   // could be called anything. in a browser environment, window obejct. 
 
     console.log(inputVal);
     //0123456789abcdef0123456789abcdef0123456789
-    App.contracts.Marketplace.methods.addAdmin(inputVal).send({from: account[0]});
-    console.log(account[0]);
+    App.contracts.Marketplace.methods.addAdmin(inputVal).send({from: App.accounts[0]});
+    console.log(App.accounts[0]);
     //let getAdminArray = App.contracts.Marketplace.methods.getAdminArray().call({from: account[0]});
     //console.log(getAdminArray);
 
@@ -460,12 +449,10 @@ App = {   // could be called anything. in a browser environment, window obejct. 
   addStorefront: async function(event) {
     event.preventDefault();
 
-    let account = await web3.eth.getAccounts();
-    
     var addedStoreName = document.getElementById("newStoreNameValue").value;
     var addedStoreDescription = document.getElementById("newStoreDescriptionValue").value;
     
-    App.contracts.Marketplace.methods.addStore(addedStoreName, addedStoreDescription).send({from: account[0]});
+    App.contracts.Marketplace.methods.addStore(addedStoreName, addedStoreDescription).send({from: App.accounts[0]});
   }
 
 
