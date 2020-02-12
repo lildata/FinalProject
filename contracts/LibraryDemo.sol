@@ -10,7 +10,7 @@ library LibraryDemo
 {
     /// @dev  addTwoNumbers function is used to add two numbers
     /// @param  numberOne is any uint
-    /// @param  numberTWo is any uint
+    /// @param  numberTwo is any uint
     /// @return sum is an addition of numberOne and numberTwo
 
     function addTwoNumbers(uint numberOne, uint numberTwo)
